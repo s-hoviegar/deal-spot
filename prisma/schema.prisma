@@ -1,0 +1,188 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id         Int              @id @default(autoincrement())
+  name            String
+  email           String           @unique
+  password_hash   String
+  location        Json?
+  detail          Json?
+  product_rating  ProductRating[]
+  retailer_rating RetailerRating[]
+  retailer        Retailer[]
+  last_login      DateTime
+  created_at      DateTime         @default(now())
+  update_at       DateTime         @updatedAt
+}
+
+model Product {
+  product_id    Int             @id @default(autoincrement())
+  name          String          @unique
+  detail        Json?
+  category      Category        @relation(fields: [category_id], references: [category_id])
+  category_id   Int
+  price         Pricing[]
+  product_image ProductImage[]
+  rating        ProductRating[]
+  created_at    DateTime        @default(now())
+  update_at     DateTime        @updatedAt
+}
+
+model Category {
+  category_id        Int        @id @default(autoincrement())
+  name               String
+  parent_category    Category?  @relation("CategoryToParent", fields: [parent_category_id], references: [category_id])
+  parent_category_id Int?
+  subcategory        Category[] @relation("CategoryToParent")
+  created_at         DateTime   @default(now())
+  update_at          DateTime   @updatedAt
+  Product            Product[]
+
+  @@index([parent_category_id])
+}
+
+model Pricing {
+  price_id     Int          @id @default(autoincrement())
+  product      Product      @relation(fields: [product_id], references: [product_id])
+  product_id   Int
+  retailer     Retailer     @relation(fields: [retailer_id], references: [retailer_id])
+  retailer_id  Int
+  price        Float
+  currency     String
+  sale         Boolean      @default(false)
+  availability Availability
+  created_at   DateTime     @default(now())
+  update_at    DateTime     @updatedAt
+}
+
+enum Availability {
+  IN_STORE
+  ONLINE
+  OUT_OF_STOCK
+}
+
+model Retailer {
+  retailer_id      Int               @id @default(autoincrement())
+  name             String
+  website          String?
+  contact_info     Json?
+  location         Json
+  address          Json
+  average_rating   Float
+  owner            User              @relation(fields: [owner_id], references: [user_id])
+  owner_id         Int
+  price            Pricing[]
+  rating           RetailerRating[]
+  retailer_image   RetailerImage[]
+  created_at       DateTime          @default(now())
+  update_at        DateTime          @updatedAt
+  retailer_address RetailerAddress[]
+}
+
+model ProductRating {
+  product_rating_id Int      @id @default(autoincrement())
+  product           Product  @relation(fields: [product_id], references: [product_id])
+  product_id        Int
+  user              User     @relation(fields: [user_id], references: [user_id])
+  user_id           Int
+  rating            Float
+  title             String?
+  content           String?
+  created_at        DateTime @default(now())
+  update_at         DateTime @updatedAt
+}
+
+model RetailerRating {
+  retailer_rating_id Int      @id @default(autoincrement())
+  Retailer           Retailer @relation(fields: [retailer_id], references: [retailer_id])
+  retailer_id        Int
+  User               User     @relation(fields: [user_id], references: [user_id])
+  user_id            Int
+  rating             Float
+  title              String?
+  content            String?
+  created_at         DateTime @default(now())
+  update_at          DateTime @updatedAt
+}
+
+model ProductImage {
+  product_image_id Int     @id @default(autoincrement())
+  name             String
+  product          Product @relation(fields: [product_id], references: [product_id])
+  product_id       Int
+  file             String
+}
+
+model RetailerImage {
+  retailer_image_id Int      @id @default(autoincrement())
+  name              String
+  retailer          Retailer @relation(fields: [retailer_id], references: [retailer_id])
+  retailer_id       Int
+  file              String
+}
+
+model RetailerAddress {
+  retailer    Retailer @relation(fields: [retailer_id], references: [retailer_id])
+  retailer_id Int
+  address     Address  @relation(fields: [address_id], references: [address_id])
+  address_id  Int
+  active      Boolean  @default(false)
+  created_at  DateTime @default(now())
+  update_at   DateTime @updatedAt
+  assigned_by String
+
+  @@id([retailer_id, address_id])
+}
+
+model Address {
+  address_id       Int               @id @default(autoincrement())
+  unit_number      String?
+  address_content  String?
+  retailer_address RetailerAddress[]
+  country          Country           @relation(fields: [country_id], references: [country_id])
+  country_id       Int
+}
+
+model Country {
+  country_id   Int       @id @default(autoincrement())
+  country_code String
+  country_name String
+  region       Region[]
+  Address      Address[]
+}
+
+model Region {
+  region_id   Int        @id @default(autoincrement())
+  region_name String
+  country     Country    @relation(fields: [country_id], references: [country_id])
+  country_id  Int
+  province    Province[]
+}
+
+model Province {
+  province_id   Int    @id @default(autoincrement())
+  province_name String
+  region        Region @relation(fields: [region_id], references: [region_id])
+  region_id     Int
+  city          City[]
+}
+
+model City {
+  city_id     Int      @id @default(autoincrement())
+  city_name   String
+  province    Province @relation(fields: [province_id], references: [province_id])
+  province_id Int
+}
