@@ -149,19 +149,19 @@ model RetailerAddress {
 
 model Address {
   address_id       Int               @id @default(autoincrement())
+  postal_code      String?
   unit_number      String?
   address_content  String?
   retailer_address RetailerAddress[]
-  country          Country           @relation(fields: [country_id], references: [country_id])
-  country_id       Int
+  city             City              @relation(fields: [city_id], references: [city_id])
+  city_id          Int
 }
 
 model Country {
-  country_id   Int       @id @default(autoincrement())
+  country_id   Int      @id @default(autoincrement())
   country_code String
   country_name String
   region       Region[]
-  Address      Address[]
 }
 
 model Region {
@@ -181,8 +181,9 @@ model Province {
 }
 
 model City {
-  city_id     Int      @id @default(autoincrement())
+  city_id     Int       @id @default(autoincrement())
   city_name   String
-  province    Province @relation(fields: [province_id], references: [province_id])
+  province    Province  @relation(fields: [province_id], references: [province_id])
   province_id Int
+  address     Address[]
 }
