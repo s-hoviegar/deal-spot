@@ -38,4 +38,53 @@ export class RetailersService {
       },
     });
   }
+
+  // RETAILERS RATINGS crud functionalities
+  async createRating(
+    createRetailerRatingDto: Prisma.RetailerRatingCreateInput,
+  ) {
+    return this.databaseService.retailerRating.create({
+      data: createRetailerRatingDto,
+    });
+  }
+
+  async findAllRating() {
+    return this.databaseService.retailerRating.findMany({});
+  }
+
+  async findOneRating(id: number) {
+    return this.databaseService.retailerRating.findUnique({
+      where: {
+        retailer_rating_id: id,
+      },
+    });
+  }
+
+  async findOneRetailerRatings(id: number) {
+    return this.databaseService.retailerRating.findMany({
+      where: {
+        retailer_id: id,
+      },
+    });
+  }
+
+  async updateRating(
+    id: number,
+    updateRetailerRatingDto: Prisma.RetailerRatingUpdateInput,
+  ) {
+    return this.databaseService.retailerRating.update({
+      where: {
+        retailer_rating_id: id,
+      },
+      data: updateRetailerRatingDto,
+    });
+  }
+
+  async removeRating(id: number) {
+    return this.databaseService.retailerRating.delete({
+      where: {
+        retailer_rating_id: id,
+      },
+    });
+  }
 }
