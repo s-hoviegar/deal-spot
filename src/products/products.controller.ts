@@ -32,6 +32,11 @@ export class ProductsController {
     return this.productsService.findOneRating(+id);
   }
 
+  @Get(':id/ratings')
+  findOneProductRatings(@Param('id') id: string) {
+    return this.productsService.findOneProductRatings(+id);
+  }
+
   @Patch('ratings/:id')
   updateRating(
     @Param('id') id: string,
@@ -59,11 +64,6 @@ export class ProductsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(+id);
-  }
-
-  @Get(':id/ratings')
-  findOneProductRatings(@Param('id') id: string) {
-    return this.productsService.findOneProductRatings(+id);
   }
 
   @Patch(':id')
