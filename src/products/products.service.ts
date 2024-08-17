@@ -22,6 +22,14 @@ export class ProductsService {
     });
   }
 
+  async findOneProductRatings(id: number) {
+    return this.databaseService.productRating.findMany({
+      where: {
+        product_id: id,
+      },
+    });
+  }
+
   async update(id: number, updateProductDto: Prisma.ProductUpdateInput) {
     return this.databaseService.product.update({
       where: {
@@ -35,6 +43,45 @@ export class ProductsService {
     return this.databaseService.product.delete({
       where: {
         product_id: id,
+      },
+    });
+  }
+
+  // PRODUCTS RATINGS crud functionalities
+  async createRating(createProductRatingDto: Prisma.ProductRatingCreateInput) {
+    return this.databaseService.productRating.create({
+      data: createProductRatingDto,
+    });
+  }
+
+  async findAllRating() {
+    return this.databaseService.productRating.findMany({});
+  }
+
+  async findOneRating(id: number) {
+    return this.databaseService.productRating.findUnique({
+      where: {
+        product_rating_id: id,
+      },
+    });
+  }
+
+  async updateRating(
+    id: number,
+    updateProductRatingDto: Prisma.ProductRatingUpdateInput,
+  ) {
+    return this.databaseService.productRating.update({
+      where: {
+        product_rating_id: id,
+      },
+      data: updateProductRatingDto,
+    });
+  }
+
+  async removeRating(id: number) {
+    return this.databaseService.productRating.delete({
+      where: {
+        product_rating_id: id,
       },
     });
   }
