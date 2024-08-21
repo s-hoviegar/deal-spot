@@ -6,6 +6,7 @@ import {
 import * as bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
+import { UpdateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -47,13 +48,22 @@ export class UsersService {
     return user;
   }
 
-  async update(id: number, updateUserDto: Prisma.UserUpdateInput) {
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    let data;
+    if (updateUserDto.password_hash) {
+      data = {
+        ...updateUserDto,
+        password_hash: await bcrypt.hash(updateUserDto.password_hash, 10),
+      };
+    } else {
+      data = updateUserDto;
+    }
     try {
       return await this.databaseService.user.update({
         where: {
           user_id: id,
         },
-        data: updateUserDto,
+        data,
       });
     } catch (err) {
       if (err.code === 'P2002') {

@@ -51,3 +51,29 @@ export class CreateUserDto {
   @IsDateString()
   last_login: Date;
 }
+
+export class UpdateUserDto {
+  @IsOptional()
+  @IsAlpha()
+  name: string;
+
+  @IsOptional()
+  @IsEmail()
+  email: string;
+
+  @IsOptional()
+  @IsStrongPassword()
+  password_hash: string;
+
+  @IsOptional()
+  @IsNotEmptyObject()
+  @IsObject()
+  @ValidateNested()
+  @Type(() => LocationDTO)
+  location: any;
+
+  @IsOptional()
+  @IsNotEmptyObject()
+  @IsObject()
+  detail: any;
+}
