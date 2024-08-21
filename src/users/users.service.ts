@@ -1,4 +1,8 @@
-import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
@@ -24,31 +28,57 @@ export class UsersService {
   }
 
   async findAll() {
-    return this.databaseService.user.findMany({});
+    const users = await this.databaseService.user.findMany();
+    if (users.length === 0) {
+      throw new NotFoundException('No user found.');
+    }
+    return users;
   }
 
   async findOne(id: number) {
-    return this.databaseService.user.findUnique({
+    const user = await this.databaseService.user.findUnique({
       where: {
         user_id: id,
       },
     });
+    if (user === null) {
+      throw new NotFoundException('User does not exist.');
+    }
+    return user;
   }
 
   async update(id: number, updateUserDto: Prisma.UserUpdateInput) {
-    return this.databaseService.user.update({
-      where: {
-        user_id: id,
-      },
-      data: updateUserDto,
-    });
+    try {
+      return await this.databaseService.user.update({
+        where: {
+          user_id: id,
+        },
+        data: updateUserDto,
+      });
+    } catch (err) {
+      if (err.code === 'P2002') {
+        throw new UnprocessableEntityException('Email already exists.');
+      }
+      if (err.code === 'P2025') {
+        throw new NotFoundException('User does not exist.');
+      }
+      console.log(err);
+      throw err;
+    }
   }
 
   async remove(id: number) {
-    return this.databaseService.user.delete({
-      where: {
-        user_id: id,
-      },
-    });
+    try {
+      return await this.databaseService.user.delete({
+        where: {
+          user_id: id,
+        },
+      });
+    } catch (err) {
+      if (err.code === 'P2025') {
+        throw new NotFoundException('User does not exist.');
+      }
+      throw err;
+    }
   }
 }
