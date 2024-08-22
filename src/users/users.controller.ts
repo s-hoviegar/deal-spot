@@ -6,15 +6,18 @@ import {
   Patch,
   Param,
   Delete,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto/create-user.dto';
+import { NoFilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @UseInterceptors(NoFilesInterceptor())
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
