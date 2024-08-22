@@ -48,6 +48,13 @@ export class UsersService {
     return user;
   }
 
+  async getUser(filter: Prisma.UserWhereUniqueInput) {
+    return this.databaseService.user.findUniqueOrThrow({
+      where: filter,
+      select: { password_hash: true },
+    });
+  }
+
   async update(id: number, updateUserDto: UpdateUserDto) {
     let data;
     if (updateUserDto.password_hash) {

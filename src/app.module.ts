@@ -9,6 +9,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { RetailersModule } from './retailers/retailers.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { LoggerModule } from 'nestjs-pino';
     PricingsModule,
     CategoriesModule,
     RetailersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
