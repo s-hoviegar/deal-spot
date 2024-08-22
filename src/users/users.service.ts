@@ -51,7 +51,7 @@ export class UsersService {
   async getUser(filter: Prisma.UserWhereUniqueInput) {
     return this.databaseService.user.findUniqueOrThrow({
       where: filter,
-      select: { password_hash: true },
+      select: { user_id: true, password_hash: true },
     });
   }
 
