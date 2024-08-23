@@ -79,7 +79,6 @@ export class UsersService {
       if (err.code === 'P2025') {
         throw new NotFoundException('User does not exist.');
       }
-      console.log(err);
       throw err;
     }
   }
