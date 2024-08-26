@@ -6,9 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { RetailersService } from './retailers.service';
 import { Prisma } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { TokenPayload } from '../auth/token-payload.interface';
+import { CreateRetailerDto } from './dto/create-retailer.dto';
 
 @Controller('retailers')
 export class RetailersController {
@@ -52,8 +57,12 @@ export class RetailersController {
 
   // RETAILER
   @Post()
-  create(@Body() createRetailerDto: Prisma.RetailerCreateInput) {
-    return this.retailersService.create(createRetailerDto);
+  @UseGuards(JwtAuthGuard)
+  create(
+    @Body() createRetailerDto: CreateRetailerDto,
+    @CurrentUser() user: TokenPayload,
+  ) {
+    return this.retailersService.create(createRetailerDto, user.userId);
   }
 
   @Get()

@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
+import { CreateRetailerDto } from './dto/create-retailer.dto';
 
 @Injectable()
 export class RetailersService {
   constructor(private readonly databaseService: DatabaseService) {}
 
-  async create(createRetailerDto: Prisma.RetailerCreateInput) {
-    return this.databaseService.retailer.create({ data: createRetailerDto });
+  async create(createRetailerDto: CreateRetailerDto, userId: number) {
+    console.log(createRetailerDto);
+    return this.databaseService.retailer.create({
+      data: { ...createRetailerDto, owner_id: userId },
+    });
   }
 
   async findAll() {
