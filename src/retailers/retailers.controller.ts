@@ -66,8 +66,9 @@ export class RetailersController {
   }
 
   @Get()
-  findAll() {
-    return this.retailersService.findAll();
+  @UseGuards(JwtAuthGuard)
+  findAll(@CurrentUser() user: TokenPayload) {
+    return this.retailersService.findAll(user.userId);
   }
 
   @Get(':id')

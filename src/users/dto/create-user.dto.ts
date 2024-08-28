@@ -48,7 +48,7 @@ export class CreateUserDto {
   @IsObject()
   detail: any;
 
-  @IsDateString()
+  @IsOptional()
   last_login: Date;
 }
 

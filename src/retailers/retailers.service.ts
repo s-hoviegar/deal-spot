@@ -14,8 +14,12 @@ export class RetailersService {
     });
   }
 
-  async findAll() {
-    return this.databaseService.retailer.findMany({});
+  async findAll(userId: number) {
+    return this.databaseService.retailer.findMany({
+      where: {
+        owner_id: userId,
+      },
+    });
   }
 
   async findOne(id: number) {
