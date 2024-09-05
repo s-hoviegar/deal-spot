@@ -7,6 +7,12 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  ParseFilePipe,
+  MaxFileSizeValidator,
+  FileTypeValidator,
+  UploadedFiles,
 } from '@nestjs/common';
 import { RetailersService } from './retailers.service';
 import { Prisma } from '@prisma/client';
@@ -14,6 +20,10 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { TokenPayload } from '../auth/token-payload.interface';
 import { CreateRetailerDto } from './dto/create-retailer.dto';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { v4 as uuid } from 'uuid';
 
 @Controller('retailers')
 export class RetailersController {
@@ -38,7 +48,7 @@ export class RetailersController {
   }
 
   @Get(':id/ratings')
-  findOneProductRatings(@Param('id') id: string) {
+  findOneRetailerRatings(@Param('id') id: string) {
     return this.retailersService.findOneRetailerRatings(+id);
   }
 
@@ -69,6 +79,25 @@ export class RetailersController {
   @UseGuards(JwtAuthGuard)
   findAll(@CurrentUser() user: TokenPayload) {
     return this.retailersService.findAll(user.userId);
+  }
+
+  @Post(':retailerId/image')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FilesInterceptor('images', 10, {
+      storage: diskStorage({
+        destination: 'public/retailers',
+        filename: (req, file, callback) => {
+          callback(
+            null,
+            `${uuid()}${req.params.retailerId}${extname(file.originalname)}`,
+          );
+        },
+      }),
+    }),
+  )
+  uploadRetailerImage(@UploadedFiles() files: Array<Express.Multer.File>) {
+    console.log(files);
   }
 
   @Get(':id')
