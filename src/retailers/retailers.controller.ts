@@ -90,14 +90,18 @@ export class RetailersController {
         filename: (req, file, callback) => {
           callback(
             null,
-            `${uuid()}${req.params.retailerId}${extname(file.originalname)}`,
+            `${uuid()}_${req.params.retailerId}${extname(file.originalname)}`,
           );
         },
       }),
     }),
   )
-  uploadRetailerImage(@UploadedFiles() files: Array<Express.Multer.File>) {
-    console.log(files);
+  uploadRetailerImage(
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Param('retailerId') id: string,
+  ) {
+    // console.log(files);
+    return this.retailersService.uploadImage(files, +id);
   }
 
   @Get(':id')

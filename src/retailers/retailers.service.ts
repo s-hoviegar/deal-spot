@@ -8,9 +8,24 @@ export class RetailersService {
   constructor(private readonly databaseService: DatabaseService) {}
 
   async create(createRetailerDto: CreateRetailerDto, userId: number) {
-    console.log(createRetailerDto);
+    // console.log(createRetailerDto);
     return this.databaseService.retailer.create({
       data: { ...createRetailerDto, owner_id: userId },
+    });
+  }
+
+  async uploadImage(files: Array<Express.Multer.File>, retailerId: number) {
+    const newFiles: Prisma.RetailerImageCreateManyInput[] = files.map(
+      (file) => {
+        return {
+          name: file.filename,
+          retailer_id: retailerId,
+          file: `${file.path}/${file.filename}`,
+        };
+      },
+    );
+    return this.databaseService.retailerImage.createMany({
+      data: newFiles,
     });
   }
 
