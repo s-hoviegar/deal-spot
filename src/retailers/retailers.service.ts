@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateRetailerDto } from './dto/create-retailer.dto';
@@ -20,7 +20,7 @@ export class RetailersService {
         return {
           name: file.filename,
           retailer_id: retailerId,
-          file: `${file.path}/${file.filename}`,
+          file: `${file.path}`,
         };
       },
     );
@@ -109,5 +109,18 @@ export class RetailersService {
         retailer_rating_id: id,
       },
     });
+  }
+
+  // Retailer images crud
+  async findAllImages(id: number) {
+    const images = await this.databaseService.retailerImage.findMany({
+      where: {
+        retailer_id: id,
+      },
+    });
+    if (images.length === 0) {
+      throw new NotFoundException('No images found.');
+    }
+    return images;
   }
 }

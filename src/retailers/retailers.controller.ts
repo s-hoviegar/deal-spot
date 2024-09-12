@@ -42,6 +42,11 @@ export class RetailersController {
     return this.retailersService.findAllRating();
   }
 
+  @Get(':id/images')
+  findAllImages(@Param('id') id: string) {
+    return this.retailersService.findAllImages(+id);
+  }
+
   @Get('ratings/:id')
   findOneRating(@Param('id') id: string) {
     return this.retailersService.findOneRating(+id);
@@ -104,10 +109,10 @@ export class RetailersController {
     return this.retailersService.uploadImage(files, +id);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.retailersService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.retailersService.findOne(+id);
+  // }
 
   @Patch(':id')
   update(
