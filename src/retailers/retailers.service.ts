@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { CreateRetailerDto } from './dto/create-retailer.dto';
@@ -30,19 +35,34 @@ export class RetailersService {
   }
 
   async findAll(userId: number) {
-    return this.databaseService.retailer.findMany({
+    const retailers = await this.databaseService.retailer.findMany({
       where: {
         owner_id: userId,
       },
     });
+    const results = retailers.map(async (retailer) => ({
+      ...retailer,
+      imageExists: await this.imageExists(retailer.retailer_id),
+      images: await this.findAllImages(retailer.retailer_id),
+    }));
+    return Promise.all(results);
   }
 
-  async findOne(id: number) {
-    return this.databaseService.retailer.findUnique({
+  async findOne(id: number, userId: number) {
+    const retailer = await this.databaseService.retailer.findUnique({
       where: {
         retailer_id: id,
       },
     });
+    if (retailer.owner_id === userId) {
+      return {
+        ...retailer,
+        imageExists: await this.imageExists(retailer.retailer_id),
+        images: await this.findAllImages(retailer.retailer_id),
+      };
+    } else {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
   }
 
   async update(id: number, updateRetailerDto: Prisma.RetailerUpdateInput) {
@@ -112,15 +132,25 @@ export class RetailersService {
   }
 
   // Retailer images crud
-  async findAllImages(id: number) {
+  async findAllImages(retailerId: number) {
     const images = await this.databaseService.retailerImage.findMany({
       where: {
-        retailer_id: id,
+        retailer_id: retailerId,
       },
     });
     if (images.length === 0) {
-      throw new NotFoundException('No images found.');
+      return [];
     }
     return images;
+  }
+
+  private async imageExists(retailerId: number) {
+    try {
+      const images = await this.findAllImages(retailerId);
+      if (images.length !== 0) return true;
+      else return false;
+    } catch (err) {
+      return false;
+    }
   }
 }

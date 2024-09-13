@@ -8,11 +8,10 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
-  UploadedFile,
+  UploadedFiles,
   ParseFilePipe,
   MaxFileSizeValidator,
   FileTypeValidator,
-  UploadedFiles,
 } from '@nestjs/common';
 import { RetailersService } from './retailers.service';
 import { Prisma } from '@prisma/client';
@@ -20,10 +19,11 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { TokenPayload } from '../auth/token-payload.interface';
 import { CreateRetailerDto } from './dto/create-retailer.dto';
-import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuid } from 'uuid';
+import { RETAILER_IMAGES } from './retailers-images';
 
 @Controller('retailers')
 export class RetailersController {
@@ -91,7 +91,7 @@ export class RetailersController {
   @UseInterceptors(
     FilesInterceptor('images', 10, {
       storage: diskStorage({
-        destination: 'public/retailers',
+        destination: RETAILER_IMAGES,
         filename: (req, file, callback) => {
           callback(
             null,
@@ -102,17 +102,27 @@ export class RetailersController {
     }),
   )
   uploadRetailerImage(
-    @UploadedFiles() files: Array<Express.Multer.File>,
+    @UploadedFiles(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 500000 }),
+          new FileTypeValidator({ fileType: 'image/jpeg' }),
+        ],
+      }),
+    )
+    files: Array<Express.Multer.File>,
     @Param('retailerId') id: string,
   ) {
     // console.log(files);
     return this.retailersService.uploadImage(files, +id);
   }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.retailersService.findOne(+id);
-  // }
+  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id') id: string, @CurrentUser() user: TokenPayload) {
+    console.log(+id);
+    return this.retailersService.findOne(+id, user.userId);
+  }
 
   @Patch(':id')
   update(
