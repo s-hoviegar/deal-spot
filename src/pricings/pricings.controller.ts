@@ -6,9 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { PricingsService } from './pricings.service';
 import { Prisma } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/current-user.decorator';
+import { TokenPayload } from '../auth/token-payload.interface';
 
 @Controller('pricings')
 export class PricingsController {
@@ -20,8 +24,9 @@ export class PricingsController {
   }
 
   @Get()
-  findAll() {
-    return this.pricingsService.findAll();
+  @UseGuards(JwtAuthGuard)
+  findAll(@CurrentUser() user: TokenPayload) {
+    return this.pricingsService.findAll(user.userId);
   }
 
   @Get(':id')
