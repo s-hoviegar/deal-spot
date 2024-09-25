@@ -12,9 +12,10 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
+      transform: true,
+      // transformOptions: {
+      //   enableImplicitConversion: true,
+      // },
     }),
   );
   app.use(cookieParser());

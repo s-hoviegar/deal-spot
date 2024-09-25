@@ -13,13 +13,15 @@ import { Prisma } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { TokenPayload } from '../auth/token-payload.interface';
+import { CreatePricingDto } from './dto/create-pricing.dto';
 
 @Controller('pricings')
 export class PricingsController {
   constructor(private readonly pricingsService: PricingsService) {}
 
   @Post()
-  create(@Body() createPricingDto: Prisma.PricingCreateInput) {
+  @UseGuards(JwtAuthGuard)
+  create(@Body() createPricingDto: CreatePricingDto) {
     return this.pricingsService.create(createPricingDto);
   }
 

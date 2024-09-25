@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { DatabaseService } from 'src/database/database.service';
 import { RetailersService } from 'src/retailers/retailers.service';
+import { CreatePricingDto } from './dto/create-pricing.dto';
 
 @Injectable()
 export class PricingsService {
@@ -10,8 +11,10 @@ export class PricingsService {
     private readonly retailersService: RetailersService,
   ) {}
 
-  async create(createPricingDto: Prisma.PricingCreateInput) {
-    return this.databaseService.pricing.create({ data: createPricingDto });
+  async create(createPricingDto: any) {
+    return this.databaseService.pricing.create({
+      data: { ...createPricingDto },
+    });
   }
 
   async findAll(userId: number) {

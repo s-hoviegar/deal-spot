@@ -19,21 +19,6 @@ export class RetailersService {
     });
   }
 
-  async uploadImage(files: Array<Express.Multer.File>, retailerId: number) {
-    const newFiles: Prisma.RetailerImageCreateManyInput[] = files.map(
-      (file) => {
-        return {
-          name: file.filename,
-          retailer_id: retailerId,
-          file: `${file.path}`,
-        };
-      },
-    );
-    return this.databaseService.retailerImage.createMany({
-      data: newFiles,
-    });
-  }
-
   async findAll(userId: number) {
     const retailers = await this.databaseService.retailer.findMany({
       where: {
@@ -132,6 +117,22 @@ export class RetailersService {
   }
 
   // Retailer images crud
+  async uploadImage(files: Array<Express.Multer.File>, retailerId: number) {
+    const newFiles: Prisma.RetailerImageCreateManyInput[] = files.map(
+      (file) => {
+        return {
+          name: file.filename,
+          retailer_id: retailerId,
+          file: `${file.path}`,
+        };
+      },
+    );
+    console.log(newFiles);
+    return this.databaseService.retailerImage.createMany({
+      data: newFiles,
+    });
+  }
+
   async findAllImages(retailerId: number) {
     const images = await this.databaseService.retailerImage.findMany({
       where: {

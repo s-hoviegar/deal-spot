@@ -102,25 +102,17 @@ export class RetailersController {
     }),
   )
   uploadRetailerImage(
-    @UploadedFiles(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 500000 }),
-          new FileTypeValidator({ fileType: 'image/jpeg' }),
-        ],
-      }),
-    )
+    @UploadedFiles()
     files: Array<Express.Multer.File>,
     @Param('retailerId') id: string,
   ) {
-    // console.log(files);
+    console.log(files);
     return this.retailersService.uploadImage(files, +id);
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   async findOne(@Param('id') id: string, @CurrentUser() user: TokenPayload) {
-    console.log(+id);
     return this.retailersService.findOne(+id, user.userId);
   }
 

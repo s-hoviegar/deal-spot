@@ -6,9 +6,19 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Prisma } from '@prisma/client';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { CreateProductDto } from './dto/create-product.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { PRODUCT_IMAGES } from './products-images';
+import { extname } from 'path';
+import { v4 as uuid } from 'uuid';
 
 @Controller('products')
 export class ProductsController {
@@ -52,7 +62,8 @@ export class ProductsController {
 
   // PRODUCTS
   @Post()
-  create(@Body() createProductDto: Prisma.ProductCreateInput) {
+  @UseGuards(JwtAuthGuard)
+  create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
@@ -61,8 +72,33 @@ export class ProductsController {
     return this.productsService.findAll();
   }
 
+  @Post(':productId/image')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(
+    FilesInterceptor('images', 10, {
+      storage: diskStorage({
+        destination: PRODUCT_IMAGES,
+        filename: (req, file, callback) => {
+          callback(
+            null,
+            `${uuid()}_${req.params.productId}${extname(file.originalname)}`,
+          );
+        },
+      }),
+    }),
+  )
+  uploadProductImage(
+    @UploadedFiles()
+    files: Array<Express.Multer.File>,
+    @Param('productId') id: string,
+  ) {
+    console.log(files);
+    return this.productsService.uploadImage(files, +id);
+  }
+
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  @UseGuards(JwtAuthGuard)
+  async findOne(@Param('id') id: string) {
     return this.productsService.findOne(+id);
   }
 
