@@ -35,12 +35,3 @@ $ npm run test:e2e
 # test coverage
 $ npm run test:cov
 ```
-
-## License
-
-/\* Copyright (C) - All Rights Reserved
-
-- Unauthorized copying of this file, via any medium is strictly prohibited
-- Proprietary and confidential
-- Written by Sajjad Hoviegar <s.hoviegar@gmail.com>, Auguest 2024
-  \*/
